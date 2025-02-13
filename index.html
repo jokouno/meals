@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Essen des Tages</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    #container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #007BFF;
+    }
+    h2 {
+      margin-top: 0;
+      color: #0056b3;
+    }
+    ul {
+      list-style: disc;
+      margin-left: 20px;
+    }
+    #randomMealButton {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #randomMealButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1 id="currentDay">Heutiger Tag:</h1>
+    <div id="mealDisplay">
+      <h2 id="mealName"></h2>
+      <h3>Zutaten:</h3>
+      <ul id="ingredients"></ul>
+      <h3>Zubereitung:</h3>
+      <p id="instructions"></p>
+    </div>
+    <button id="randomMealButton">Neues Essen anzeigen</button>
+  </div>
+
+  <!-- Essensdaten als JSON in der HTML gespeichert -->
+  <script id="meal-data" type="application/json">
+  [
+    {
+      "day": "Montag",
+      "name": "Spaghetti Bolognese",
+      "ingredients": ["Spaghetti", "Hackfleisch", "Tomaten", "Zwiebeln", "Knoblauch"],
+      "instructions": "Spaghetti kochen, Hackfleisch anbraten, Zwiebeln und Knoblauch hinzufügen, Tomaten dazugeben und köcheln lassen."
+    },
+    {
+      "day": "Montag",
+      "name": "Gemüsesuppe",
+      "ingredients": ["Karotten", "Kartoffeln", "Sellerie", "Lauch"],
+      "instructions": "Gemüse klein schneiden, in Wasser kochen und mit Gewürzen abschmecken."
+    },
+    {
+      "day": "Dienstag",
+      "name": "Hähnchen Curry",
+      "ingredients": ["Hähnchen", "Curry-Paste", "Kokosmilch", "Gemüse"],
+      "instructions": "Hähnchen anbraten, Gemüse und Curry-Paste hinzufügen und mit Kokosmilch köcheln lassen."
+    },
+    {
+      "day": "Dienstag",
+      "name": "Nudelsalat",
+      "ingredients": ["Nudeln", "Paprika", "Gurke", "Tomaten", "Feta"],
+      "instructions": "Nudeln kochen, Gemüse schneiden, alles vermischen und mit einem Dressing servieren."
+    },
+    {
+      "day": "Mittwoch",
+      "name": "Reis mit Gemüse",
+      "ingredients": ["Reis", "Brokkoli", "Karotten", "Sojasauce"],
+      "instructions": "Reis kochen, Gemüse dünsten und mit Sojasauce abschmecken."
+    },
+    {
+      "day": "Mittwoch",
+      "name": "Omelette",
+      "ingredients": ["Eier", "Milch", "Käse", "Schinken"],
+      "instructions": "Eier verquirlen, Milch, Käse und Schinken hinzufügen und in der Pfanne stocken lassen."
+    },
+    {
+      "day": "Donnerstag",
+      "name": "Lasagne",
+      "ingredients": ["Lasagneblätter", "Hackfleisch", "Tomatensauce", "Béchamelsauce"],
+      "instructions": "Schichten Sie Lasagneblätter, Fleischsauce und Béchamelsauce und backen Sie das Ganze."
+    },
+    {
+      "day": "Donnerstag",
+      "name": "Quiche",
+      "ingredients": ["Teig", "Eier", "Sahne", "Gemüse"],
+      "instructions": "Füllen Sie den Teig mit einer Mischung aus Eiern, Sahne und Gemüse und backen Sie ihn goldbraun."
+    },
+    {
+      "day": "Freitag",
+      "name": "Pizza",
+      "ingredients": ["Pizzateig", "Tomatensauce", "Käse", "Belag nach Wahl"],
+      "instructions": "Teig ausrollen, mit Tomatensauce bestreichen, Käse und Belag hinzufügen und backen."
+    },
+    {
+      "day": "Freitag",
+      "name": "Fischfilet mit Kartoffeln",
+      "ingredients": ["Fischfilet", "Kartoffeln", "Zitronen", "Kräuter"],
+      "instructions": "Fischfilet würzen und braten, Kartoffeln kochen und mit Kräutern und Zitronensaft servieren."
+    },
+    {
+      "day": "Samstag",
+      "name": "Burger",
+      "ingredients": ["Burger-Brötchen", "Rindfleisch", "Salat", "Tomaten", "Käse"],
+      "instructions": "Rindfleisch grillen, Brötchen toasten und alle Zutaten zusammenstellen."
+    },
+    {
+      "day": "Samstag",
+      "name": "Wraps",
+      "ingredients": ["Tortilla", "Hähnchen", "Gemüse", "Salsa"],
+      "instructions": "Hähnchen anbraten, Gemüse klein schneiden, in der Tortilla rollen und mit Salsa servieren."
+    },
+    {
+      "day": "Sonntag",
+      "name": "Braten",
+      "ingredients": ["Rinderbraten", "Kartoffeln", "Gemüse", "Bratensauce"],
+      "instructions": "Rinderbraten langsam garen, dazu Kartoffeln und Gemüse reichen und mit der Bratensauce servieren."
+    },
+    {
+      "day": "Sonntag",
+      "name": "Pasta mit Pesto",
+      "ingredients": ["Pasta", "Pesto", "Kirschtomaten"],
+      "instructions": "Pasta kochen, mit Pesto und halbierten Kirschtomaten mischen und servieren."
+    }
+  ]
+  </script>
+
+  <script>
+    // Essensdaten aus dem HTML-Script-Tag parsen
+    const mealData = JSON.parse(document.getElementById('meal-data').textContent);
+
+    // Array zur Umrechnung von getDay() in deutsche Wochentagsnamen
+    const days = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+
+    // Aktuellen Wochentag ermitteln
+    const today = new Date();
+    const todayString = days[today.getDay()];
+
+    // Aktuellen Tag anzeigen
+    document.getElementById('currentDay').textContent = "Heutiger Tag: " + todayString;
+
+    // Alle Gerichte für den heutigen Tag filtern
+    const todaysMeals = mealData.filter(meal => meal.day === todayString);
+
+    // Funktion zum Anzeigen eines Gerichts
+    function displayMeal(meal) {
+      document.getElementById('mealName').textContent = meal.name;
+
+      // Zutatenliste leeren und neu befüllen
+      const ingredientsList = document.getElementById('ingredients');
+      ingredientsList.innerHTML = "";
+      meal.ingredients.forEach(ingredient => {
+        const li = document.createElement('li');
+        li.textContent = ingredient;
+        ingredientsList.appendChild(li);
+      });
+
+      // Zubereitung anzeigen
+      document.getElementById('instructions').textContent = meal.instructions;
+    }
+
+    // Funktion zur Auswahl eines zufälligen Gerichts für heute
+    function randomMeal() {
+      if (todaysMeals.length === 0) {
+        document.getElementById('mealName').textContent = "Kein passendes Gericht gefunden für " + todayString;
+        document.getElementById('ingredients').innerHTML = "";
+        document.getElementById('instructions').textContent = "";
+        return;
+      }
+      const randomIndex = Math.floor(Math.random() * todaysMeals.length);
+      displayMeal(todaysMeals[randomIndex]);
+    }
+
+    // Initiales Gericht anzeigen
+    randomMeal();
+
+    // Event-Listener für den Button
+    document.getElementById('randomMealButton').addEventListener('click', randomMeal);
+  </script>
+</body>
+</html>
