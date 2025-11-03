@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="npoint-url" content="https://api.npoint.io/ca2dd7866fc47d012b78">
   <title>Essen des Tages</title>
   <style>
     body {
@@ -13,7 +14,7 @@
       color: #333;
     }
     #container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       background: #fff;
       padding: 20px;
@@ -31,6 +32,7 @@
     ul {
       list-style: disc;
       margin-left: 20px;
+      padding-left: 20px;
     }
     #randomMealButton {
       display: block;
@@ -46,245 +48,293 @@
     #randomMealButton:hover {
       background-color: #0056b3;
     }
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+    form input,
+    form select,
+    form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    form textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    form button[type="submit"] {
+      margin-top: 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    form button[type="submit"]:hover {
+      background-color: #1e7e34;
+    }
+    .status-message {
+      margin-top: 15px;
+      min-height: 1.2em;
+    }
+    .status-success {
+      color: #1e7e34;
+      font-weight: 600;
+    }
+    .status-error {
+      color: #c0392b;
+      font-weight: 600;
+    }
+    #allMeals {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .meal-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      background: #fafafa;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .meal-card h3 {
+      margin: 0;
+      color: #007BFF;
+    }
+    .meal-day-tag {
+      display: inline-block;
+      align-self: flex-start;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: #e8f1ff;
+      color: #0056b3;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .instructions {
+      white-space: pre-wrap;
+    }
   </style>
 </head>
+
 <body>
   <div id="container">
     <h1 id="currentDay">Heutiger Tag:</h1>
+
     <div id="mealDisplay">
       <h2 id="mealName"></h2>
       <h3>Zutaten:</h3>
       <ul id="ingredients"></ul>
       <h3>Zubereitung:</h3>
-      <p id="instructions"></p>
+      <p id="instructions" class="instructions"></p>
     </div>
+
     <button id="randomMealButton">Neues Essen anzeigen</button>
+
+    <section id="addMeal">
+      <h2>Neues Gericht hinzufügen</h2>
+      <form id="mealForm" novalidate>
+        <label for="day">Wochentag</label>
+        <select id="day" name="day" required>
+          <option value="Montag">Montag</option>
+          <option value="Dienstag">Dienstag</option>
+          <option value="Mittwoch">Mittwoch</option>
+          <option value="Donnerstag">Donnerstag</option>
+          <option value="Freitag">Freitag</option>
+          <option value="Samstag">Samstag</option>
+          <option value="Sonntag">Sonntag</option>
+          <option value="any">Beliebig (jeder Tag)</option>
+        </select>
+
+        <label for="name">Gerichtsname</label>
+        <input id="name" name="name" type="text" placeholder="z. B. Spaghetti Bolognese" required>
+
+        <label for="ingredientsInput">Zutaten (eine pro Zeile oder Komma-getrennt)</label>
+        <textarea id="ingredientsInput" name="ingredients" placeholder="z. B. Spaghetti\nTomatensoße\nParmesan" required></textarea>
+
+        <label for="instructionsInput">Zubereitung</label>
+        <textarea id="instructionsInput" name="instructions" placeholder="Beschreibe hier die Zubereitung." required></textarea>
+
+        <button type="submit">Gericht speichern</button>
+      </form>
+      <p id="formStatus" class="status-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="allMealsSection">
+      <h2>Alle gespeicherten Gerichte</h2>
+      <div id="allMeals"></div>
+    </section>
   </div>
 
-  <!-- Essensdaten als JSON in der HTML gespeichert -->
-  <script id="meal-data" type="application/json">
-  [
-    {
-      "day": "Montag",
-      "name": "Spaghetti Bolognese",
-      "ingredients": ["Spaghetti", "Hackfleisch", "Tomaten", "Zwiebeln", "Knoblauch"],
-      "instructions": "Spaghetti kochen, Hackfleisch anbraten, Zwiebeln und Knoblauch hinzufügen, Tomaten dazugeben und köcheln lassen."
-    },
-    {
-      "day": "Montag",
-      "name": "Gemüsesuppe",
-      "ingredients": ["Karotten", "Kartoffeln", "Sellerie", "Lauch"],
-      "instructions": "Gemüse klein schneiden, in Wasser kochen und mit Gewürzen abschmecken."
-    },
-    {
-      "day": "Dienstag",
-      "name": "Hähnchen Curry",
-      "ingredients": ["Hähnchen", "Curry-Paste", "Kokosmilch", "Gemüse"],
-      "instructions": "Hähnchen anbraten, Gemüse und Curry-Paste hinzufügen und mit Kokosmilch köcheln lassen."
-    },
-    {
-      "day": "Dienstag",
-      "name": "Nudelsalat",
-      "ingredients": ["Nudeln", "Paprika", "Gurke", "Tomaten", "Feta"],
-      "instructions": "Nudeln kochen, Gemüse schneiden, alles vermischen und mit einem Dressing servieren."
-    },
-    {
-      "day": "Mittwoch",
-      "name": "Reis mit Gemüse",
-      "ingredients": ["Reis", "Brokkoli", "Karotten", "Sojasauce"],
-      "instructions": "Reis kochen, Gemüse dünsten und mit Sojasauce abschmecken."
-    },
-    {
-      "day": "Mittwoch",
-      "name": "Omelette",
-      "ingredients": ["Eier", "Milch", "Käse", "Schinken"],
-      "instructions": "Eier verquirlen, Milch, Käse und Schinken hinzufügen und in der Pfanne stocken lassen."
-    },
-    {
-      "day": "Donnerstag",
-      "name": "Lasagne",
-      "ingredients": [
-        "Lasagneblätter",
-        "500 g Rinderhackfleisch",
-        "1 Zwiebel",
-        "2 Knoblauchzehen",
-        "800 g Dosentomaten (gehackt oder passiert)",
-        "2 EL Tomatenmark",
-        "100 ml Rotwein",
-        "500g geriebener Käse",
-        "Olivenöl",
-        "Salz",
-        "Pfeffer",
-        "Italienische Kräuter (Basilikum, Oregano)",
-        "50 g Butter",
-        "50 g Mehl",
-        "500 ml Milch",
-        "Muskatnuss",
-        "100 g geriebener Parmesan"
-      ],
-      "instructions": "Zwiebel, Knoblauch, Karotte und Sellerie fein würfeln und in Olivenöl andünsten. Rinderhackfleisch hinzufügen und krümelig anbraten. Mit Rotwein ablöschen, Dosentomaten und Tomatenmark einrühren, mit Salz, Pfeffer und italienischen Kräutern würzen und ca. 20 Minuten köcheln lassen. Für die Bechamelsauce Butter schmelzen, Mehl einrühren und kurz anschwitzen, dann unter ständigem Rühren die Milch hinzufügen, bis die Sauce eindickt. Mit Salz, Pfeffer und Muskatnuss abschmecken. In einer Auflaufform abwechselnd Fleischsoße, Lasagneblätter und Bechamelsauce schichten, mit geriebenem Parmesan bestreuen und im vorgeheizten Ofen bei 180°C ca. 40 Minuten backen. Vor dem Servieren etwas ruhen lassen."
-    },
-    {
-      "day": "Donnerstag",
-      "name": "Quiche",
-      "ingredients": ["Teig", "Eier", "Sahne", "Gemüse"],
-      "instructions": "Füllen Sie den Teig mit einer Mischung aus Eiern, Sahne und Gemüse und backen Sie ihn goldbraun."
-    },
-    {
-      "day": "Freitag",
-      "name": "Pizza",
-      "ingredients": ["Pizzateig", "Tomatensauce", "Käse", "Belag nach Wahl"],
-      "instructions": "Teig ausrollen, mit Tomatensauce bestreichen, Käse und Belag hinzufügen und backen."
-    },
-    {
-      "day": "Freitag",
-      "name": "Fischfilet mit Kartoffeln",
-      "ingredients": ["Fischfilet", "Kartoffeln", "Zitronen", "Kräuter"],
-      "instructions": "Fischfilet würzen und braten, Kartoffeln kochen und mit Kräutern und Zitronensaft servieren."
-    },
-    {
-      "day": "Samstag",
-      "name": "Burger",
-      "ingredients": ["Burger-Brötchen", "Rindfleisch", "Salat", "Tomaten", "Käse"],
-      "instructions": "Rindfleisch grillen, Brötchen toasten und alle Zutaten zusammenstellen."
-    },
-    {
-      "day": "Samstag",
-      "name": "Wraps",
-      "ingredients": ["Tortilla", "Hähnchen", "Gemüse", "Salsa"],
-      "instructions": "Hähnchen anbraten, Gemüse klein schneiden, in der Tortilla rollen und mit Salsa servieren."
-    },
-    {
-      "day": "Sonntag",
-      "name": "Braten",
-      "ingredients": ["Rinderbraten", "Kartoffeln", "Gemüse", "Bratensauce"],
-      "instructions": "Rinderbraten langsam garen, dazu Kartoffeln und Gemüse reichen und mit der Bratensauce servieren."
-    },
-    {
-      "day": "Sonntag",
-      "name": "Pasta mit Pesto",
-      "ingredients": ["Pasta", "Pesto", "Kirschtomaten"],
-      "instructions": "Pasta kochen, mit Pesto und halbierten Kirschtomaten mischen und servieren."
-    },
-    {
-      "day": "any",
-      "name": "Kokos-Linsen-Curry",
-      "ingredients": [
-        "2 Knoblauchzehen",
-        "1 kleines Stück Ingwer",
-        "250 g Kirschtomaten",
-        "250 g rote Linsen",
-        "1 EL Rapsöl",
-        "1/2 TL Kreuzkümmel",
-        "1/2 TL Zimt",
-        "1 TL Curry",
-        "400 ml Kokosmilch - Dose",
-        "250 ml Gemüsebrühe",
-        "Salz",
-        "Pfeffer",
-        "2 EL Limettensaft"
-      ],
-      "instructions": "Knoblauch klein würfeln. Ingwer klein schneiden. Tomaten vierteln. Linsen in ein Sieb geben und abspülen.\nÖl in einem Topf erhitzen und Knoblauch sowie Ingwer anbraten. Dann Kreuzkümmel, Zimt und Curry unterheben und kurz anrösten.\nKokosmilch, Gemüsebrühe, Tomaten und Linsen zugeben und aufkochen. Bei mittlerer Hitze 20 Minuten köcheln lassen, bis die Linsen weich sind. Bei Bedarf noch etwas Wasser oder Kokosmilch zugeben.\nMit Salz, Pfeffer und Limettensaft abschmecken."
-    },
-    {
-      "day": "any",
-      "name": "Chili con Carne",
-      "ingredients": [
-        "2 Zwiebeln",
-        "3 Knoblauchzehen",
-        "1 rote Paprikaschote",
-        "2 Dosen Kidneybohnen - Abtropfgewicht jeweils 250 g",
-        "1 Dose Mais - Abtropfgewicht 280 g",
-        "1 EL Rapsöl",
-        "800 g Rinderhackfleisch",
-        "2 EL Tomatenmark",
-        "500 ml Rinderbrühe",
-        "800 g gehackte Tomaten - Dose",
-        "1 TL Kreuzkümmel",
-        "2 EL Paprikapulver edelsüß",
-        "1 TL Chili",
-        "1 TL Zimt",
-        "Salz",
-        "Pfeffer"
-      ],
-      "instructions": "1. Zwiebeln und Knoblauch klein hacken, Paprika würfeln. Kidneybohnen und Mais abtropfen lassen.\n2. Die vorbereiteten Zutaten in Schalen anrichten.\n3. Öl in einer Pfanne erhitzen und das Hackfleisch anbraten. Dann Zwiebeln und Knoblauch zugeben und mitbraten. Tomatenmark unterheben und kurz anrösten.\n4. Hackfleisch mit den gehackten Tomaten vermengen.\n5. Brühe, Paprika, Kidneybohnen, Mais und die Gewürze zugeben und das Chili bei mittlerer Hitze 20 Minuten köcheln lassen. Mit Salz und Pfeffer abschmecken.\n6. Chili con Carne mit einem Kochlöffel in der Pfanne servieren."
-    },
-    {
-      "day": "any",
-      "name": "Veganes joko curry",
-      "ingredients": [
-        "1 rote Zwiebel",
-        "2 Lauchzwiebeln",
-        "200g Reisnudeln",
-        "2 veganes thai chicken",
-        "1 Dose Kokosmilch",
-        "1 Dose curry soße",
-        "1 Dose Mungobohnen Keimlinge",
-        "1 Limette",
-        "Reis",
-        "Curry",
-        "Salz",
-        "Pfeffer"
-      ],
-      "instructions": "1. Zwiebeln und Lauchzwiebeln klein hacken und zusammen mit dem ThaiChicken anbraten. \n2. Mungobohnen, Kokosmilch und curry Soße hinzugeben. Limette ausdrücken\n3. Reis kochen.\n4. Reisnudenl hinzugeben für 4-5min kochen lassen. Fertig :)"
-    }
-  ]
-</script>
-
-
-
   <script>
-    // Essensdaten aus dem HTML-Script-Tag parsen
-    const mealData = JSON.parse(document.getElementById('meal-data').textContent);
+    // === KONFIGURATION ===
+    const meta = document.querySelector('meta[name="npoint-url"]');
+    const NPOINT_URL = meta?.content?.replace(/\/$/, '') || 'https://api.npoint.io/DEINE_ID';
 
-    // Array zur Umrechnung von getDay() in deutsche Wochentagsnamen
-    const days = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+    // === DOM ELEMENTE ===
+    const mealNameEl = document.getElementById('mealName');
+    const ingredientsEl = document.getElementById('ingredients');
+    const instructionsEl = document.getElementById('instructions');
+    const randomBtn = document.getElementById('randomMealButton');
+    const form = document.getElementById('mealForm');
+    const dayInput = document.getElementById('day');
+    const nameInput = document.getElementById('name');
+    const ingredientsInput = document.getElementById('ingredientsInput');
+    const instructionsInput = document.getElementById('instructionsInput');
+    const formStatus = document.getElementById('formStatus');
+    const allMealsContainer = document.getElementById('allMeals');
 
-    // Aktuellen Wochentag ermitteln
-    const today = new Date();
-    const todayString = days[today.getDay()];
-
-    // Aktuellen Tag anzeigen
+    // === Wochentag bestimmen ===
+    const days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+    const todayString = days[new Date().getDay()];
     document.getElementById('currentDay').textContent = "Heutiger Tag: " + todayString;
 
-    // Alle Gerichte für den heutigen Tag filtern (auch Gerichte mit day "any")
-    const todaysMeals = mealData.filter(meal => meal.day === todayString || meal.day.toLowerCase() === "any");
+    // === Datenhaltung ===
+    let meals = [];
+    let todaysMeals = [];
 
-
-    // Funktion zum Anzeigen eines Gerichts
-    function displayMeal(meal) {
-      document.getElementById('mealName').textContent = meal.name;
-
-      // Zutatenliste leeren und neu befüllen
-      const ingredientsList = document.getElementById('ingredients');
-      ingredientsList.innerHTML = "";
-      meal.ingredients.forEach(ingredient => {
-        const li = document.createElement('li');
-        li.textContent = ingredient;
-        ingredientsList.appendChild(li);
-      });
-
-      // Zubereitung anzeigen
-      document.getElementById('instructions').textContent = meal.instructions;
+    // === Hilfsfunktionen ===
+    function normalizeIngredients(text) {
+      return text.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
     }
 
-    // Funktion zur Auswahl eines zufälligen Gerichts für heute
-    function randomMeal() {
+    function displayMeal(meal) {
+      mealNameEl.textContent = meal ? meal.name : '';
+      ingredientsEl.innerHTML = '';
+      instructionsEl.textContent = meal ? meal.instructions : '';
+      if (meal) {
+        meal.ingredients.forEach(i => {
+          const li = document.createElement('li');
+          li.textContent = i;
+          ingredientsEl.appendChild(li);
+        });
+      }
+    }
+
+    function updateTodayMeals() {
+      todaysMeals = meals.filter(m => m.day?.toLowerCase() === 'any' || m.day === todayString);
       if (todaysMeals.length === 0) {
-        document.getElementById('mealName').textContent = "Kein passendes Gericht gefunden für " + todayString;
-        document.getElementById('ingredients').innerHTML = "";
-        document.getElementById('instructions').textContent = "";
+        displayMeal(null);
+        mealNameEl.textContent = 'Kein passendes Gericht gefunden für ' + todayString;
+        randomBtn.disabled = true;
+      } else {
+        displayMeal(todaysMeals[0]);
+        randomBtn.disabled = false;
+      }
+    }
+
+    function randomMeal() {
+      if (!todaysMeals.length) return;
+      const idx = Math.floor(Math.random() * todaysMeals.length);
+      displayMeal(todaysMeals[idx]);
+    }
+    randomBtn.addEventListener('click', randomMeal);
+
+    function renderAllMeals() {
+      allMealsContainer.innerHTML = '';
+      if (!meals.length) {
+        allMealsContainer.textContent = 'Noch keine Gerichte vorhanden.';
         return;
       }
-      const randomIndex = Math.floor(Math.random() * todaysMeals.length);
-      displayMeal(todaysMeals[randomIndex]);
+      const frag = document.createDocumentFragment();
+      meals
+        .slice()
+        .sort((a,b) => (a.day||'').localeCompare(b.day||'') || a.name.localeCompare(b.name))
+        .forEach(m => {
+          const card = document.createElement('article');
+          card.className = 'meal-card';
+          card.innerHTML = `
+            <span class="meal-day-tag">${(m.day?.toLowerCase()==='any'?'Beliebig':(m.day||''))}</span>
+            <h3>${m.name}</h3>
+            <h4>Zutaten</h4>
+            <ul>${(m.ingredients||[]).map(i=>`<li>${i}</li>`).join('')}</ul>
+            <h4>Zubereitung</h4>
+            <p class="instructions">${m.instructions||''}</p>
+          `;
+          frag.appendChild(card);
+        });
+      allMealsContainer.appendChild(frag);
     }
 
-    // Initiales Gericht anzeigen
-    randomMeal();
+    // === npoint: Lesen & Schreiben ===
+    async function loadMeals() {
+      const res = await fetch(NPOINT_URL, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+      if (!res.ok) throw new Error('Laden fehlgeschlagen: ' + res.status);
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    }
 
-    // Event-Listener für den Button
-    document.getElementById('randomMealButton').addEventListener('click', randomMeal);
+    async function saveMeals(nextMeals) {
+      const res = await fetch(NPOINT_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nextMeals)
+      });
+      if (!res.ok) throw new Error('Speichern fehlgeschlagen: ' + res.status);
+      return res.json();
+    }
+
+    // === Initial laden ===
+    (async () => {
+      try {
+        meals = await loadMeals();
+        renderAllMeals();
+        updateTodayMeals();
+      } catch (e) {
+        console.error(e);
+        mealNameEl.textContent = 'Fehler beim Laden der Gerichte.';
+        randomBtn.disabled = true;
+      }
+    })();
+
+    // === Formular-Submit ===
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formStatus.textContent = 'Gericht wird gespeichert…';
+
+      const newMeal = {
+        day: dayInput.value,
+        name: nameInput.value.trim(),
+        ingredients: normalizeIngredients(ingredientsInput.value),
+        instructions: instructionsInput.value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      if (!newMeal.day || !newMeal.name || !newMeal.instructions || !newMeal.ingredients.length) {
+        formStatus.textContent = 'Bitte alle Felder ausfüllen (mindestens eine Zutat).';
+        return;
+      }
+
+      try {
+        const current = await loadMeals();
+        const next = current.concat(newMeal);
+        await saveMeals(next);
+
+        meals = next;
+        renderAllMeals();
+        updateTodayMeals();
+        form.reset();
+        formStatus.textContent = 'Gericht gespeichert!';
+      } catch (err) {
+        console.error(err);
+        formStatus.textContent = 'Speichern fehlgeschlagen. Bitte später erneut versuchen.';
+      }
+    });
   </script>
 </body>
+
 </html>
