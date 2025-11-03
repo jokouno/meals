@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="npoint-url" content="https://api.npoint.io/0c273521e4dc00050164">
+  <meta name="api-url" content="https://6908fdb82d902d0651b25c00.mockapi.io/meals">
   <title>Essen des Tages</title>
   <style>
     body {
@@ -85,6 +85,14 @@
       margin-top: 15px;
       min-height: 1.2em;
     }
+    .status-success {
+      color: #1e7e34;
+      font-weight: 600;
+    }
+    .status-error {
+      color: #c0392b;
+      font-weight: 600;
+    }
     #allMeals {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -120,15 +128,17 @@
     .instructions {
       white-space: pre-wrap;
     }
-    summary {
-      font-size: 20px;
+    details summary {
+      cursor: pointer;
+      background: #eef5ff;
+      padding: 10px 14px;
+      border-radius: 6px;
       font-weight: 600;
       color: #0056b3;
-      cursor: pointer;
-      margin-top: 30px;
+      margin-bottom: 10px;
     }
-    details[open] summary {
-      color: #007BFF;
+    details summary:hover {
+      background: #dcecff;
     }
   </style>
 </head>
@@ -147,7 +157,7 @@
 
     <button id="randomMealButton">Neues Essen anzeigen</button>
 
-    <details id="addMeal">
+    <details id="addMeal" closed>
       <summary>Neues Gericht hinzufügen</summary>
       <form id="mealForm" novalidate>
         <label for="day">Wochentag</label>
@@ -166,7 +176,7 @@
         <input id="name" name="name" type="text" placeholder="z. B. Spaghetti Bolognese" required>
 
         <label for="ingredientsInput">Zutaten (eine pro Zeile oder Komma-getrennt)</label>
-        <textarea id="ingredientsInput" name="ingredients" placeholder="z. B. Spaghetti, Tomatensoße, Parmesan" required></textarea>
+        <textarea id="ingredientsInput" name="ingredients" placeholder="z. B. Spaghetti\nTomatensoße\nParmesan" required></textarea>
 
         <label for="instructionsInput">Zubereitung</label>
         <textarea id="instructionsInput" name="instructions" placeholder="Beschreibe hier die Zubereitung." required></textarea>
@@ -176,15 +186,18 @@
       <p id="formStatus" class="status-message" role="status" aria-live="polite"></p>
     </details>
 
-    <details id="allMealsSection">
-      <summary>Alle gespeicherten Gerichte</summary>
+    <details id="allMealsSection" closed>
+      <summary>Alle gespeicherten Gerichte anzeigen</summary>
       <div id="allMeals"></div>
     </details>
   </div>
 
   <script>
-    const meta = document.querySelector('meta[name="npoint-url"]');
-    const NPOINT_URL = meta?.content?.replace(/\/$/, '') || 'https://api.npoint.io/DEINE_ID';
+    // === KONFIGURATION ===
+    const meta = document.querySelector('meta[name="api-url"]');
+    const API_URL = meta?.content?.replace(/\/$/, '') || '';
+
+    // === DOM ELEMENTE ===
     const mealNameEl = document.getElementById('mealName');
     const ingredientsEl = document.getElementById('ingredients');
     const instructionsEl = document.getElementById('instructions');
@@ -205,7 +218,7 @@
     let todaysMeals = [];
 
     function normalizeIngredients(text) {
-      return [...new Set(text.split(/[\n,]/).map(s => s.trim()).filter(Boolean))];
+      return text.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
     }
 
     function displayMeal(meal) {
@@ -266,34 +279,25 @@
       allMealsContainer.appendChild(frag);
     }
 
+    // === MockAPI: Lesen & Schreiben ===
     async function loadMeals() {
-      const res = await fetch(NPOINT_URL, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+      const res = await fetch(API_URL, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
       if (!res.ok) throw new Error('Laden fehlgeschlagen: ' + res.status);
       const data = await res.json();
       return Array.isArray(data) ? data : [];
     }
 
-    async function saveMeals(nextMeals) {
-      // ✅ Schema-konformes JSON ohne Zusatzfelder
-      const validated = nextMeals.map(m => ({
-        day: String(m.day || '').trim(),
-        name: String(m.name || '').trim(),
-        ingredients: Array.isArray(m.ingredients)
-          ? [...new Set(m.ingredients.map(String))]
-          : [],
-        instructions: String(m.instructions || '').trim()
-      }));
-
-      const res = await fetch(NPOINT_URL, {
-        method: 'PUT',
+    async function saveMeal(meal) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validated)
+        body: JSON.stringify(meal)
       });
-
       if (!res.ok) throw new Error('Speichern fehlgeschlagen: ' + res.status);
       return res.json();
     }
 
+    // === Initial laden ===
     (async () => {
       try {
         meals = await loadMeals();
@@ -306,12 +310,13 @@
       }
     })();
 
+    // === Formular-Submit ===
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
       formStatus.textContent = 'Gericht wird gespeichert…';
 
       const newMeal = {
-        day: dayInput.value.trim(),
+        day: dayInput.value,
         name: nameInput.value.trim(),
         ingredients: normalizeIngredients(ingredientsInput.value),
         instructions: instructionsInput.value.trim()
@@ -323,17 +328,8 @@
       }
 
       try {
-        const current = await loadMeals();
-        const exists = current.some(m => m.name.toLowerCase() === newMeal.name.toLowerCase() && m.day === newMeal.day);
-        if (exists) {
-          formStatus.textContent = 'Dieses Gericht existiert für diesen Tag bereits.';
-          return;
-        }
-
-        const next = current.concat(newMeal);
-        await saveMeals(next);
-
-        meals = next;
+        const saved = await saveMeal(newMeal);
+        meals.push(saved);
         renderAllMeals();
         updateTodayMeals();
         form.reset();
@@ -346,5 +342,3 @@
   </script>
 </body>
 </html>
-
-
