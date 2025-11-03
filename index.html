@@ -128,6 +128,16 @@
     .instructions {
       white-space: pre-wrap;
     }
+    summary {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0056b3;
+      cursor: pointer;
+      margin-top: 30px;
+    }
+    details[open] summary {
+      color: #007BFF;
+    }
   </style>
 </head>
 
@@ -145,8 +155,9 @@
 
     <button id="randomMealButton">Neues Essen anzeigen</button>
 
-    <section id="addMeal">
-      <h2>Neues Gericht hinzufügen</h2>
+    <!-- 🟦 Neues Gericht hinzufügen -->
+    <details id="addMeal" class="collapsible-section">
+      <summary>Neues Gericht hinzufügen</summary>
       <form id="mealForm" novalidate>
         <label for="day">Wochentag</label>
         <select id="day" name="day" required>
@@ -164,7 +175,7 @@
         <input id="name" name="name" type="text" placeholder="z. B. Spaghetti Bolognese" required>
 
         <label for="ingredientsInput">Zutaten (eine pro Zeile oder Komma-getrennt)</label>
-        <textarea id="ingredientsInput" name="ingredients" placeholder="z. B. Spaghetti\nTomatensoße\nParmesan" required></textarea>
+        <textarea id="ingredientsInput" name="ingredients" placeholder="z. B. Spaghetti, Tomatensoße, Parmesan" required></textarea>
 
         <label for="instructionsInput">Zubereitung</label>
         <textarea id="instructionsInput" name="instructions" placeholder="Beschreibe hier die Zubereitung." required></textarea>
@@ -172,20 +183,18 @@
         <button type="submit">Gericht speichern</button>
       </form>
       <p id="formStatus" class="status-message" role="status" aria-live="polite"></p>
-    </section>
+    </details>
 
-    <section id="allMealsSection">
-      <h2>Alle gespeicherten Gerichte</h2>
+    <!-- 🟦 Alle gespeicherten Gerichte -->
+    <details id="allMealsSection" class="collapsible-section">
+      <summary>Alle gespeicherten Gerichte</summary>
       <div id="allMeals"></div>
-    </section>
+    </details>
   </div>
 
   <script>
-    // === KONFIGURATION ===
     const meta = document.querySelector('meta[name="npoint-url"]');
     const NPOINT_URL = meta?.content?.replace(/\/$/, '') || 'https://api.npoint.io/DEINE_ID';
-
-    // === DOM ELEMENTE ===
     const mealNameEl = document.getElementById('mealName');
     const ingredientsEl = document.getElementById('ingredients');
     const instructionsEl = document.getElementById('instructions');
@@ -198,18 +207,15 @@
     const formStatus = document.getElementById('formStatus');
     const allMealsContainer = document.getElementById('allMeals');
 
-    // === Wochentag bestimmen ===
     const days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
     const todayString = days[new Date().getDay()];
     document.getElementById('currentDay').textContent = "Heutiger Tag: " + todayString;
 
-    // === Datenhaltung ===
     let meals = [];
     let todaysMeals = [];
 
-    // === Hilfsfunktionen ===
     function normalizeIngredients(text) {
-      return text.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
+      return [...new Set(text.split(/[\n,]/).map(s => s.trim()).filter(Boolean))];
     }
 
     function displayMeal(meal) {
@@ -270,7 +276,6 @@
       allMealsContainer.appendChild(frag);
     }
 
-    // === npoint: Lesen & Schreiben ===
     async function loadMeals() {
       const res = await fetch(NPOINT_URL, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
       if (!res.ok) throw new Error('Laden fehlgeschlagen: ' + res.status);
@@ -279,16 +284,21 @@
     }
 
     async function saveMeals(nextMeals) {
+      const validated = nextMeals.map(m => ({
+        day: String(m.day || '').trim(),
+        name: String(m.name || '').trim(),
+        ingredients: Array.isArray(m.ingredients) ? [...new Set(m.ingredients.map(String))] : [],
+        instructions: String(m.instructions || '').trim()
+      }));
       const res = await fetch(NPOINT_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nextMeals)
+        body: JSON.stringify(validated)
       });
       if (!res.ok) throw new Error('Speichern fehlgeschlagen: ' + res.status);
       return res.json();
     }
 
-    // === Initial laden ===
     (async () => {
       try {
         meals = await loadMeals();
@@ -301,17 +311,15 @@
       }
     })();
 
-    // === Formular-Submit ===
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
       formStatus.textContent = 'Gericht wird gespeichert…';
 
       const newMeal = {
-        day: dayInput.value,
+        day: dayInput.value.trim(),
         name: nameInput.value.trim(),
         ingredients: normalizeIngredients(ingredientsInput.value),
-        instructions: instructionsInput.value.trim(),
-        createdAt: new Date().toISOString()
+        instructions: instructionsInput.value.trim()
       };
 
       if (!newMeal.day || !newMeal.name || !newMeal.instructions || !newMeal.ingredients.length) {
@@ -321,6 +329,12 @@
 
       try {
         const current = await loadMeals();
+        const exists = current.some(m => m.name.toLowerCase() === newMeal.name.toLowerCase() && m.day === newMeal.day);
+        if (exists) {
+          formStatus.textContent = 'Dieses Gericht existiert für diesen Tag bereits.';
+          return;
+        }
+
         const next = current.concat(newMeal);
         await saveMeals(next);
 
@@ -336,5 +350,4 @@
     });
   </script>
 </body>
-
 </html>
