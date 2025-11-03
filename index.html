@@ -85,14 +85,6 @@
       margin-top: 15px;
       min-height: 1.2em;
     }
-    .status-success {
-      color: #1e7e34;
-      font-weight: 600;
-    }
-    .status-error {
-      color: #c0392b;
-      font-weight: 600;
-    }
     #allMeals {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -155,8 +147,7 @@
 
     <button id="randomMealButton">Neues Essen anzeigen</button>
 
-    <!-- 🟦 Neues Gericht hinzufügen -->
-    <details id="addMeal" class="collapsible-section">
+    <details id="addMeal">
       <summary>Neues Gericht hinzufügen</summary>
       <form id="mealForm" novalidate>
         <label for="day">Wochentag</label>
@@ -185,8 +176,7 @@
       <p id="formStatus" class="status-message" role="status" aria-live="polite"></p>
     </details>
 
-    <!-- 🟦 Alle gespeicherten Gerichte -->
-    <details id="allMealsSection" class="collapsible-section">
+    <details id="allMealsSection">
       <summary>Alle gespeicherten Gerichte</summary>
       <div id="allMeals"></div>
     </details>
@@ -284,17 +274,22 @@
     }
 
     async function saveMeals(nextMeals) {
+      // ✅ Schema-konformes JSON ohne Zusatzfelder
       const validated = nextMeals.map(m => ({
         day: String(m.day || '').trim(),
         name: String(m.name || '').trim(),
-        ingredients: Array.isArray(m.ingredients) ? [...new Set(m.ingredients.map(String))] : [],
+        ingredients: Array.isArray(m.ingredients)
+          ? [...new Set(m.ingredients.map(String))]
+          : [],
         instructions: String(m.instructions || '').trim()
       }));
+
       const res = await fetch(NPOINT_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(validated)
       });
+
       if (!res.ok) throw new Error('Speichern fehlgeschlagen: ' + res.status);
       return res.json();
     }
