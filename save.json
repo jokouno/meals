@@ -1,0 +1,104 @@
+[
+  {
+    "day": "Donnerstag",
+    "name": "Lasagne",
+    "ingredients": [
+      "Lasagneblätter",
+      "500 g Rinderhackfleisch",
+      "1 Zwiebel",
+      "2 Knoblauchzehen",
+      "800 g Dosentomaten (gehackt oder passiert)",
+      "2 EL Tomatenmark",
+      "100 ml Rotwein",
+      "500g geriebener Käse",
+      "Olivenöl",
+      "Salz",
+      "Pfeffer",
+      "Italienische Kräuter (Basilikum, Oregano)",
+      "50 g Butter",
+      "50 g Mehl",
+      "500 ml Milch",
+      "Muskatnuss",
+      "100 g geriebener Parmesan"
+    ],
+    "instructions": "Zwiebel, Knoblauch, Karotte und Sellerie fein würfeln und in Olivenöl andünsten. Rinderhackfleisch hinzufügen und krümelig anbraten. Mit Rotwein ablöschen, Dosentomaten und Tomatenmark einrühren, mit Salz, Pfeffer und italienischen Kräutern würzen und ca. 20 Minuten köcheln lassen. Für die Bechamelsauce Butter schmelzen, Mehl einrühren und kurz anschwitzen, dann unter ständigem Rühren die Milch hinzufügen, bis die Sauce eindickt. Mit Salz, Pfeffer und Muskatnuss abschmecken. In einer Auflaufform abwechselnd Fleischsoße, Lasagneblätter und Bechamelsauce schichten, mit geriebenem Parmesan bestreuen und im vorgeheizten Ofen bei 180°C ca. 40 Minuten backen. Vor dem Servieren etwas ruhen lassen."
+  },
+  {
+    "day": "any",
+    "name": "Kokos-Linsen-Curry",
+    "ingredients": [
+      "2 Knoblauchzehen",
+      "1 kleines Stück Ingwer",
+      "250 g Kirschtomaten",
+      "250 g rote Linsen",
+      "1 EL Rapsöl",
+      "1/2 TL Kreuzkümmel",
+      "1/2 TL Zimt",
+      "1 TL Curry",
+      "400 ml Kokosmilch - Dose",
+      "250 ml Gemüsebrühe",
+      "Salz",
+      "Pfeffer",
+      "2 EL Limettensaft"
+    ],
+    "instructions": "Knoblauch klein würfeln. Ingwer klein schneiden. Tomaten vierteln. Linsen in ein Sieb geben und abspülen.\nÖl in einem Topf erhitzen und Knoblauch sowie Ingwer anbraten. Dann Kreuzkümmel, Zimt und Curry unterheben und kurz anrösten.\nKokosmilch, Gemüsebrühe, Tomaten und Linsen zugeben und aufkochen. Bei mittlerer Hitze 20 Minuten köcheln lassen, bis die Linsen weich sind. Bei Bedarf noch etwas Wasser oder Kokosmilch zugeben.\nMit Salz, Pfeffer und Limettensaft abschmecken."
+  },
+  {
+    "day": "any",
+    "name": "Chili con Carne",
+    "ingredients": [
+      "2 Zwiebeln",
+      "3 Knoblauchzehen",
+      "1 rote Paprikaschote",
+      "2 Dosen Kidneybohnen - Abtropfgewicht jeweils 250 g",
+      "1 Dose Mais - Abtropfgewicht 280 g",
+      "1 EL Rapsöl",
+      "800 g Rinderhackfleisch",
+      "2 EL Tomatenmark",
+      "500 ml Rinderbrühe",
+      "800 g gehackte Tomaten - Dose",
+      "1 TL Kreuzkümmel",
+      "2 EL Paprikapulver edelsüß",
+      "1 TL Chili",
+      "1 TL Zimt",
+      "Salz",
+      "Pfeffer"
+    ],
+    "instructions": "1. Zwiebeln und Knoblauch klein hacken, Paprika würfeln. Kidneybohnen und Mais abtropfen lassen.\n2. Die vorbereiteten Zutaten in Schalen anrichten.\n3. Öl in einer Pfanne erhitzen und das Hackfleisch anbraten. Dann Zwiebeln und Knoblauch zugeben und mitbraten. Tomatenmark unterheben und kurz anrösten.\n4. Hackfleisch mit den gehackten Tomaten vermengen.\n5. Brühe, Paprika, Kidneybohnen, Mais und die Gewürze zugeben und das Chili bei mittlerer Hitze 20 Minuten köcheln lassen. Mit Salz und Pfeffer abschmecken.\n6. Chili con Carne mit einem Kochlöffel in der Pfanne servieren."
+  },
+  {
+    "day": "any",
+    "name": "Veganes joko curry",
+    "ingredients": [
+      "1 rote Zwiebel",
+      "2 Lauchzwiebeln",
+      "200g Reisnudeln",
+      "2 veganes thai chicken",
+      "1 Dose Kokosmilch",
+      "1 Dose curry soße",
+      "1 Dose Mungobohnen Keimlinge",
+      "1 Limette",
+      "Reis",
+      "Curry",
+      "Salz",
+      "Pfeffer"
+    ],
+    "instructions": "1. Zwiebeln und Lauchzwiebeln klein hacken und zusammen mit dem ThaiChicken anbraten. \n2. Mungobohnen, Kokosmilch und curry Soße hinzugeben. Limette ausdrücken\n3. Reis kochen.\n4. Reisnudenl hinzugeben für 4-5min kochen lassen. Fertig :)"
+  },
+  {
+    "day": "any",
+    "name": "Rosenkohl Auflauf",
+    "ingredients": [
+      "1kg Gnochi",
+      "Rosenkohl",
+      "1 Dose mit Erbsen und Karotten",
+      "1 Sahne",
+      "1 Packung Mini Mozarella",
+      "1 Packung geriebener Käse",
+      "Brühe",
+      "Milch"
+    ],
+    "instructions": "1. Rosenkohl kochen (lieber bissl länger)\n2. Sahne + Milch + Brühe als Soße\n3. Alles in Auflaufform und auf 200 Grad backen lassen",
+    "id": "1"
+  }
+]
